@@ -1,6 +1,9 @@
 # ionic3-google-facebook-qrcode
 This app was built with Ionic 3, Angular 4, Facebook and Google API and shows QRcode.
 
+## Android APK Link
+https://www.dropbox.com/s/vejal8xf0ildfza/qrcode.apk?dl=0
+
 ## Run
 - `npm install`
 - `npm install -g ionic`
