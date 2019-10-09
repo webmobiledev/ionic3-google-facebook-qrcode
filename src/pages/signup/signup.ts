@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { Http, Headers } from '@angular/http';
 import { NavController } from 'ionic-angular';
 import { HomePage } from '../home/home';
 
@@ -18,14 +17,12 @@ export class SignupPage {
   confirmPassword: string;
   valid: any = {};
 
-  constructor(public nav: NavController, public http: Http, public loginService: LoginService) {
+  constructor(public nav: NavController,
+    public loginService: LoginService) {
  
   }
  
   register(){
-    let headers = new Headers();
-    headers.append('Content-Type', 'application/json');
-
     if (this.password != this.confirmPassword) {
       this.confirmPassword = '';
       return;
@@ -38,13 +35,12 @@ export class SignupPage {
       password: this.password,
     };
 
-    this.http.post('http://35.189.187.130/max/server.php/api/v1/auth/register', JSON.stringify(user), {headers: headers})
-      .subscribe(res => {
-        this.loginService.setUuid(res.json().uuid);
-        this.loginService.setLoginState(true);
-        this.nav.setRoot(HomePage);
-      }, (err) => {
-        this.valid = err.json();
+    this.loginService.registerUser(user).subscribe(res => {
+      this.loginService.setUuid(res.json().uuid);
+      this.loginService.setLoginState(true);
+      this.nav.setRoot(HomePage);
+    }, (err) => {
+      this.valid = err.json();
     }); 
   }
  

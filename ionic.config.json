@@ -1,6 +1,5 @@
 {
   "name": "front-end",
-  "app_id": "",
   "integrations": {
     "cordova": {}
   },

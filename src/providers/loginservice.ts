@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
+import { Http, Headers } from '@angular/http';
 import 'rxjs/add/operator/map';
 import { BehaviorSubject } from 'rxjs';
 import { GooglePlus } from '@ionic-native/google-plus';
@@ -7,21 +7,28 @@ import { Facebook } from '@ionic-native/facebook';
 
 import { Device } from '@ionic-native/device';
 
+const URL = 'http://35.189.187.130/max/server.php/api/v1';
+
 @Injectable()
 export class LoginService {
   uuid: string;
   loginState: boolean = false;
   public subject: any = new BehaviorSubject('Log in');
+  headers = new Headers();
   
-  constructor(public http: Http, private device: Device, private googlePlus: GooglePlus, private facebook: Facebook) {
-    
+  constructor(public http: Http,
+    private device: Device,
+    private googlePlus: GooglePlus,
+    private facebook: Facebook) {
+    this.headers.append('Content-Type', 'application/json');
   }
 
   getUuid() {
-    if(this.loginState == false)
+    if(this.loginState == false) {
       return this.device.uuid;
-    else
+    } else {
       return this.uuid;
+    }
   }
 
   setUuid(uuid: string) {
@@ -55,4 +62,15 @@ export class LoginService {
     });    
   }
 
+  logInWithEmail(credentials) {
+    return this.http.post(`${URL}/auth/login`, JSON.stringify(credentials), {headers: this.headers});
+  }
+
+  registerUser(user) {
+    return this.http.post(`${URL}/auth/register`, JSON.stringify(user), {headers: this.headers});
+  }
+
+  getUuidFromServer(param, value) {
+    return this.http.get(`${URL}/auth/getuuid?${param}=${value}`);
+  }
 }

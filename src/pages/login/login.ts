@@ -18,13 +18,16 @@ export class LoginPage {
   FB_APP_ID: number = 1111111111111;
   email: string = "";
   password: string = "";
-  headers = new Headers();
   credentials: any = {};
   valid: any = {};
   touched: boolean = false;
  
-  constructor(public nav: NavController, public http: Http, public loginService: LoginService, private facebook: Facebook, private google: GooglePlus, private loadingCtrl: LoadingController) {
-    this.headers.append('Content-Type', 'application/json');
+  constructor(public nav: NavController,
+    public http: Http,
+    public loginService: LoginService,
+    private facebook: Facebook,
+    private google: GooglePlus,
+    private loadingCtrl: LoadingController) {
     this.facebook.browserInit(this.FB_APP_ID, "v2.10");
   }
  
@@ -41,14 +44,13 @@ export class LoginPage {
       };
     }
 
-    this.http.post('http://35.189.187.130/max/server.php/api/v1/auth/login', JSON.stringify(this.credentials), {headers: this.headers})
-      .subscribe(res => {
-        this.loginService.setUuid(res.json().uuid);
-        this.loginService.setLoginState(true);
-        this.nav.setRoot(HomePage);
-      }, (err) => {
-        this.touched = true;
-        this.valid = err.json();
+    this.loginService.logInWithEmail(this.credentials).subscribe(res => {
+      this.loginService.setUuid(res.json().uuid);
+      this.loginService.setLoginState(true);
+      this.nav.setRoot(HomePage);
+    }, (err) => {
+      this.touched = true;
+      this.valid = err.json();
     });
   }
  
@@ -85,7 +87,7 @@ export class LoginPage {
             };
           }
 
-          env.http.post('http://35.189.187.130/max/server.php/api/v1/auth/register', JSON.stringify(env.credentials), {headers: env.headers})
+          env.loginService.registerUser(env.credentials)
           .subscribe(res => {
             env.loginService.setUuid(res.json().uuid);
             env.loginService.setLoginState(true);
@@ -93,9 +95,8 @@ export class LoginPage {
             
             loading.dismiss();
           }, (err) => {
-            env.http.get('http://35.189.187.130/max/server.php/api/v1/auth/getuuid?fbid='+res.json().id)
+            env.loginService.getUuidFromServer('fbid', res.json().id)
             .subscribe(res => {
-              console.log(env.headers);
               env.loginService.setLoginState(true);
               env.loginService.setUuid(res.json().uuid);
               env.nav.setRoot(HomePage);
@@ -133,7 +134,7 @@ export class LoginPage {
         facebook: "default"
       };
 
-      env.http.post('http://35.189.187.130/max/server.php/api/v1/auth/register', JSON.stringify(env.credentials), {headers: env.headers})
+      env.loginService.registerUser(env.credentials)
       .subscribe(res => {
         env.loginService.setUuid(res.json().uuid);
         env.loginService.setLoginState(true);
@@ -141,7 +142,7 @@ export class LoginPage {
         
         loading.dismiss();
       }, (err) => {
-        env.http.get('http://35.189.187.130/max/server.php/api/v1/auth/getuuid?email='+user.email)
+        env.loginService.getUuidFromServer('email', user.email)
         .subscribe(res => {
           env.loginService.setLoginState(true);
           env.loginService.setUuid(res.json().uuid);
